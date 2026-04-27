@@ -81,24 +81,37 @@ The application sends write queries to the Primary and read queries to the Repli
 
 - There is no monitoring system to detect failures, performance issues, or resource usage.
 
-```
-flowchart TD
-
-A[User / Browser]
-
-A --> B[Load Balancer<br/>HAProxy]
-
-B --> C1[Nginx Web Server<br/>Server 1]
-B --> C2[Nginx Web Server<br/>Server 2]
-
-C1 --> D1[Application Server 1]
-C2 --> D2[Application Server 2]
-
-D1 --> E[Application Files / Codebase]
-D2 --> E[Application Files / Codebase]
-
-D1 --> F[MySQL Primary]
-D2 --> F[MySQL Primary]
-
-F --> G[MySQL Replica]
-```
+                         +------------------+
+                         |  User / Browser  |
+                         +------------------+
+                                   |
+                                   v
+                 +----------------------------------+
+                 | Load Balancer (HAProxy)          |
+                 +----------------------------------+
+                       |                     |
+                       v                     v
+        +---------------------------+   +---------------------------+
+        | Nginx Web Server (S1)     |   | Nginx Web Server (S2)     |
+        +---------------------------+   +---------------------------+
+                       |                     |
+                       v                     v
+        +---------------------------+   +---------------------------+
+        | Application Server 1      |   | Application Server 2      |
+        +---------------------------+   +---------------------------+
+                       \                     /
+                        \                   /
+                         v                 v
+                 +----------------------------------+
+                 | Application Files / Codebase     |
+                 +----------------------------------+
+                                   |
+                                   v
+                         +----------------------+
+                         |    MySQL Primary     |
+                         +----------------------+
+                                   |
+                                   v
+                         +----------------------+
+                         |    MySQL Replica     |
+                         +----------------------+

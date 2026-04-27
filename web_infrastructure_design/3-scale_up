@@ -59,31 +59,65 @@ Databases are separated to protect data integrity and improve performance. A Pri
 
 This infrastructure is more resilient and production-ready. By clustering load balancers and separating components across dedicated servers, the system achieves better availability, scalability, and reliability compared to earlier designs.
 
-```
-flowchart TD
+                         +------------------+
+                         |   User / Browser |
+                         +------------------+
+                                   |
+                                   v
+                         +------------------+
+                         |     Firewall     |
+                         +------------------+
+                           /              \
+                          v                v
+            +------------------------------------+
+            | Load Balancer 1 (HAProxy + SSL Term)| 
+            +------------------------------------+
+                          |            \
+                          v             v
+                +----------------+   +----------------+
+                | Monitoring Ag. |   | Firewall (S1) |
+                +----------------+   +----------------+
+                                          |
+                                          v
+                                 +----------------------+
+                                 | Nginx Web Server 1   |
+                                 +----------------------+
+                                   |                \
+                                   v                 v
+                        +------------------+   +------------------+
+                        | Application Svr1 |   | Monitoring Agent |
+                        +------------------+   +------------------+
+                                   |
+                                   v
+                         +----------------------+
+                         |    MySQL Primary     |
+                         +----------------------+
+                                   |
+                                   v
+                         +----------------------+
+                         |    MySQL Replica     |
+                         +----------------------+
 
-A[User / Browser] --> FW0[Firewall]
-
-FW0 --> LB1[Load Balancer 1<br/>HAProxy + SSL Termination]
-FW0 --> LB2[Load Balancer 2<br/>HAProxy + SSL Termination]
-
-LB1 --> MON1[Monitoring Agent]
-LB2 --> MON2[Monitoring Agent]
-
-LB1 --> FW1[Firewall<br/>Path to Server 1]
-LB2 --> FW2[Firewall<br/>Path to Server 2]
-
-FW1 --> W1[Nginx Web Server 1]
-FW2 --> W2[Nginx Web Server 2]
-
-W1 --> AS1[Application Server 1]
-W2 --> AS2[Application Server 2]
-
-W1 --> MON3[Monitoring Agent]
-W2 --> MON4[Monitoring Agent]
-
-AS1 --> DBP[MySQL Primary]
-AS2 --> DBP
-
-DBP --> DBR[MySQL Replica]
-```
+            +------------------------------------+
+            | Load Balancer 2 (HAProxy + SSL Term)| 
+            +------------------------------------+
+                          |            \
+                          v             v
+                +----------------+   +----------------+
+                | Monitoring Ag. |   | Firewall (S2) |
+                +----------------+   +----------------+
+                                          |
+                                          v
+                                 +----------------------+
+                                 | Nginx Web Server 2   |
+                                 +----------------------+
+                                   |                \
+                                   v                 v
+                        +------------------+   +------------------+
+                        | Application Svr2 |   | Monitoring Agent |
+                        +------------------+   +------------------+
+                                   |
+                                   v
+                         +----------------------+
+                         |    MySQL Primary     |
+                         +----------------------+

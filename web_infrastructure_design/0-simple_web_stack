@@ -36,12 +36,37 @@ Downtime for Maintenance: Deploying new code or updating the web server may requ
 
 Scalability Issues: If too many users access the website at once, a single server may not handle the load, and performance could degrade.
 
-```
-flowchart TD
-
-A[User Browser] -->|HTTP/HTTPS| B[DNS Lookup<br/>www.foobar.com → 8.8.8.8]
-B --> C[Server: 8.8.8.8]
-C --> D[Web Server<br/>Nginx]
-D --> E[App Server<br/>Application Code]
-E --> F[Database<br/>MySQL]
-```
+ +------------------+
+                         |   User Browser   |
+                         +------------------+
+                                   |
+                         HTTP / HTTPS Request
+                                   |
+                                   v
+                 +--------------------------------------+
+                 | DNS Lookup                           |
+                 | www.foobar.com  →  8.8.8.8           |
+                 +--------------------------------------+
+                                   |
+                                   v
+                         +------------------+
+                         |  Server: 8.8.8.8 |
+                         +------------------+
+                                   |
+                                   v
+                         +------------------+
+                         |  Web Server      |
+                         |     Nginx        |
+                         +------------------+
+                                   |
+                                   v
+                         +---------------------------+
+                         |   App Server              |
+                         |   Application Code        |
+                         +---------------------------+
+                                   |
+                                   v
+                         +------------------+
+                         |    Database      |
+                         |      MySQL       |
+                         +------------------+
