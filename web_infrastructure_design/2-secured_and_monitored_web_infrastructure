@@ -1,0 +1,134 @@
+## Infrastructure Components
+
+* **1 Load Balancer (HAProxy)**
+* **2 Backend Servers**, each containing:
+
+  * Web Server (Nginx)
+  * Application Server
+  * Application Files (codebase)
+  * Database (MySQL)
+* **3 Firewalls**
+* **1 SSL Certificate**
+* **3 Monitoring Clients**
+
+---
+
+## Why Each Additional Element Is Added
+
+### Firewalls
+
+Firewalls are added to control incoming and outgoing network traffic based on predefined security rules. Each firewall helps protect a critical component of the infrastructure from unauthorized access.
+
+### SSL Certificate
+
+An SSL certificate is added to enable HTTPS and encrypt traffic between the client and the server. This protects sensitive data from being intercepted or modified.
+
+### Monitoring Clients
+
+Monitoring clients are installed on each server to collect metrics and logs. These clients send data to an external monitoring service such as Sumologic, Datadog, or Prometheus.
+
+---
+
+## What Firewalls Are For
+
+Firewalls act as a security barrier between trusted internal systems and untrusted external networks. They prevent unauthorized access, limit attack surfaces, and help mitigate common network attacks.
+
+---
+
+## Why Traffic Is Served Over HTTPS
+
+HTTPS encrypts data in transit using SSL/TLS. This ensures:
+
+- Confidentiality of user data
+- Protection against man-in-the-middle attacks
+- Data integrity
+- Increased user trust and browser compatibility
+
+---
+
+## What Monitoring Is Used For
+
+Monitoring is used to:
+
+- Detect server failures
+- Track performance and resource usage
+- Identify security incidents
+- Trigger alerts when thresholds are exceeded
+
+---
+
+## How the Monitoring Tool Collects Data
+
+Monitoring agents run on each server and collect metrics such as CPU usage, memory usage, disk I/O, network traffic, logs, and application-level metrics. The data is periodically sent to a centralized monitoring service for analysis and alerting.
+
+---
+
+## Monitoring Web Server QPS (Queries Per Second)
+
+To monitor web server QPS:
+
+- Enable access logs on the web server (Nginx)
+- Configure the monitoring agent to parse these logs
+- Extract request count metrics over time
+- Visualize and alert on QPS thresholds in the monitoring dashboard
+
+---
+
+## Issues With This Infrastructure
+
+### SSL Termination at the Load Balancer
+
+Terminating SSL at the load balancer means traffic between the load balancer and backend servers is unencrypted. If the internal network is compromised, sensitive data could be exposed.
+
+---
+
+### Single MySQL Server Accepting Writes
+
+Having only one MySQL primary server for write operations creates a bottleneck and a single point of failure. If the primary database fails, write operations will be unavailable until recovery or promotion occurs.
+
+---
+
+### Servers With Identical Components
+
+Having web servers, application servers, and databases on the same machines can lead to:
+
+- Resource contention
+- Reduced scalability
+- Increased blast radius when a server fails
+
+Separating concerns across dedicated servers improves scalability, performance, and fault isolation.
+
+---
+
+## Conclusion
+
+This infrastructure improves security, encryption, and observability but still has architectural limitations. Further improvements could include database clustering, internal TLS, dedicated database servers, and redundant load balancers.
+
+
+```
+flowchart TD
+
+A[User / Browser] --> B[Firewall]
+
+B --> C[Load Balancer<br/>HAProxy + SSL Termination]
+
+C --> M1[Monitoring Agent]
+
+C --> FW1[Firewall<br/>Server 1]
+C --> FW2[Firewall<br/>Server 2]
+
+FW1 --> W1[Nginx Web Server<br/>Server 1]
+FW2 --> W2[Nginx Web Server<br/>Server 2]
+
+W1 --> AS1[Application Server 1]
+W2 --> AS2[Application Server 2]
+
+W1 --> M2[Monitoring Agent]
+W2 --> M3[Monitoring Agent]
+
+AS1 --> CODE[Application Files]
+AS2 --> CODE
+
+AS1 --> DBP[MySQL Primary]
+DBP --> DBR[MySQL Replica]
+```

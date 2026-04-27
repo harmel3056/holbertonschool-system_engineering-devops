@@ -1,0 +1,47 @@
+1. **User Request**
+
+When a user wants to access a website, they type www.foobar.com into their browser. The browser doesn’t know where this website lives yet, so it first asks the DNS system to resolve the domain name.
+
+2. **Domain Name and DNS**
+
+The domain name foobar.com is a human-readable address that points to our server’s IP address, making it easier to remember than a number like 8.8.8.8. The www part in www.foobar.com is a DNS A record, which directly maps the domain name to the server’s IP. In our setup, the www A record points to 8.8.8.8.
+
+3. **Server**
+
+Once the browser knows the IP, it connects to the server at 8.8.8.8. A server is basically a powerful computer that hosts services and data, and it listens for incoming requests from users. In this case, our single server contains everything needed to serve the website:
+
+- Web Server (Nginx)
+The web server handles incoming HTTP/HTTPS requests from the user’s browser. It serves static content like HTML, CSS, and images directly and forwards dynamic requests to the application server. It also handles SSL/TLS for secure connections.
+
+- Application Server
+The application server runs the website’s code. It generates dynamic pages, processes form submissions, and performs business logic. Essentially, it’s where your application “lives.”
+
+- Application Files
+These are the actual files that make up the website—templates, scripts, images, and any other code that the application server executes.
+
+- Database (MySQL)
+The database stores all persistent data for the website, such as user accounts, posts, or settings. The application server queries the database to retrieve or update data as needed.
+
+4. **Communication**
+
+The user’s browser communicates with the web server over the Internet using HTTP or HTTPS, which are protocols built on top of TCP/IP. The web server communicates internally with the application server, usually over a local port or socket. The application server then communicates with the database using SQL queries over TCP.
+
+5. **Limitations of This Infrastructure**
+
+While this single-server setup works for a simple website, it has some important limitations:
+
+Single Point of Failure (SPOF): If the server goes down, the website becomes completely unavailable because there is no redundancy.
+
+Downtime for Maintenance: Deploying new code or updating the web server may require restarting services, causing temporary downtime for users.
+
+Scalability Issues: If too many users access the website at once, a single server may not handle the load, and performance could degrade.
+
+```
+flowchart TD
+
+A[User Browser] -->|HTTP/HTTPS| B[DNS Lookup<br/>www.foobar.com → 8.8.8.8]
+B --> C[Server: 8.8.8.8]
+C --> D[Web Server<br/>Nginx]
+D --> E[App Server<br/>Application Code]
+E --> F[Database<br/>MySQL]
+```

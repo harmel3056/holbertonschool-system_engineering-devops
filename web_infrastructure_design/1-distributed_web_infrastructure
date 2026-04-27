@@ -1,0 +1,104 @@
+## Why Each Additional Element Is Added
+
+**Load Balancer (HAProxy)**:
+The load balancer is added to distribute incoming HTTP requests across multiple backend servers. This improves availability and helps prevent a single server from becoming overloaded.
+
+**Two Backend Servers**:
+Having two servers provides redundancy. If one server fails, the other can still serve requests, reducing downtime.
+
+**Web Server (Nginx)**:
+Nginx handles incoming HTTP requests, serves static files, and forwards dynamic requests to the application server.
+
+**Application Server**:
+The application server processes business logic and generates dynamic content for the website.
+
+**Application Files (Codebase)**:
+These contain the actual website logic and functionality required to serve user requests.
+
+**Database (MySQL)**:
+The database stores persistent data such as user information and application data.
+
+---
+
+## Load Balancer Distribution Algorithm
+
+The load balancer is configured using a Round Robin distribution algorithm.
+
+**How it works:**
+Each incoming request is forwarded to the next server in sequence. This ensures traffic is evenly distributed across all available backend servers.
+
+---
+
+## Load Balancer Setup: Active-Active vs Active-Passive
+
+This infrastructure uses an Active-Active setup.
+
+Active-Active: Both backend servers actively handle traffic at the same time.
+
+Active-Passive: One server handles traffic while the other remains idle until the primary fails.
+
+Active-Active improves performance and resource usage, while Active-Passive focuses more on failover.
+
+---
+
+## Database Primary-Replica (Master-Slave) Cluster
+
+In this setup:
+
+- The Primary (Master) database handles all write operations.
+
+- The Replica (Slave) database replicates data from the Primary and handles read operations.
+
+Changes made to the Primary database are automatically copied to the Replica.
+
+---
+
+## Difference Between Primary and Replica Databases
+
+- **Primary Node:**
+Handles write operations such as INSERT, UPDATE, and DELETE.
+
+- **Replica Node:**
+Handles read-only operations to reduce load on the Primary database.
+
+The application sends write queries to the Primary and read queries to the Replica.
+
+---
+
+## Issues With This Infrastructure
+
+**Single Points of Failure (SPOF):**
+
+- The load balancer is a SPOF since there is only one.
+- If the Primary database fails, write operations will be unavailable.
+
+**Security Issues:**
+
+- No firewall is configured to restrict access.
+- No HTTPS encryption is enabled, making data vulnerable in transit.
+
+**No Monitoring:**
+
+- There is no monitoring system to detect failures, performance issues, or resource usage.
+
+```
+flowchart TD
+
+A[User / Browser]
+
+A --> B[Load Balancer<br/>HAProxy]
+
+B --> C1[Nginx Web Server<br/>Server 1]
+B --> C2[Nginx Web Server<br/>Server 2]
+
+C1 --> D1[Application Server 1]
+C2 --> D2[Application Server 2]
+
+D1 --> E[Application Files / Codebase]
+D2 --> E[Application Files / Codebase]
+
+D1 --> F[MySQL Primary]
+D2 --> F[MySQL Primary]
+
+F --> G[MySQL Replica]
+```

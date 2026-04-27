@@ -1,0 +1,89 @@
+## Infrastructure Components
+
+* **2 Load Balancers (HAProxy) configured as a cluster**
+* **2 Web Servers (Nginx)**
+* **2 Application Servers**
+* **2 Database Servers**
+
+  * 1 Primary (writes)
+  * 1 Replica (reads)
+* **Firewalls and Monitoring** (inherited from the previous design)
+
+---
+
+## Why Each Additional Element Is Added
+
+### Additional Server
+
+An additional server is added to separate infrastructure components. Instead of running web, application, and database services on the same machines, each component now runs on its own dedicated server. This improves performance, scalability, and fault isolation.
+
+---
+
+### Load Balancer Cluster (HAProxy)
+
+A second load balancer is added and configured as a cluster with the first one. This removes the load balancer as a single point of failure.
+
+If one load balancer fails, the other continues to serve traffic, ensuring high availability.
+
+---
+
+### Split Components Across Dedicated Servers
+
+#### Web Servers (Nginx)
+
+Web servers are responsible only for handling HTTP/HTTPS requests and serving static content. Separating them allows horizontal scaling when traffic increases.
+
+#### Application Servers
+
+Application servers handle business logic and dynamic content generation. Isolating them prevents application workloads from competing with web or database resources.
+
+#### Database Servers
+
+Databases are separated to protect data integrity and improve performance. A Primary–Replica setup allows:
+
+- Writes to be handled by the Primary database
+- Reads to be distributed to the Replica database
+
+---
+
+## Benefits of This Architecture
+
+- Eliminates major single points of failure
+- Improves scalability and performance
+- Reduces resource contention
+- Makes the system easier to maintain and evolve
+
+---
+
+## Conclusion
+
+This infrastructure is more resilient and production-ready. By clustering load balancers and separating components across dedicated servers, the system achieves better availability, scalability, and reliability compared to earlier designs.
+
+```
+flowchart TD
+
+A[User / Browser] --> FW0[Firewall]
+
+FW0 --> LB1[Load Balancer 1<br/>HAProxy + SSL Termination]
+FW0 --> LB2[Load Balancer 2<br/>HAProxy + SSL Termination]
+
+LB1 --> MON1[Monitoring Agent]
+LB2 --> MON2[Monitoring Agent]
+
+LB1 --> FW1[Firewall<br/>Path to Server 1]
+LB2 --> FW2[Firewall<br/>Path to Server 2]
+
+FW1 --> W1[Nginx Web Server 1]
+FW2 --> W2[Nginx Web Server 2]
+
+W1 --> AS1[Application Server 1]
+W2 --> AS2[Application Server 2]
+
+W1 --> MON3[Monitoring Agent]
+W2 --> MON4[Monitoring Agent]
+
+AS1 --> DBP[MySQL Primary]
+AS2 --> DBP
+
+DBP --> DBR[MySQL Replica]
+```
